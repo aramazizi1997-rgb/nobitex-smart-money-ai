@@ -56,18 +56,25 @@ if "watchlist" not in st.session_state:
 
 @st.cache_data(ttl=15, show_spinner=False)
 def api_get(path, params=None):
-    try:
-        response = requests.get(
-            NOBITEX + path,
-            params=params,
-            timeout=12,
-            headers={"User-Agent": "ARAM-AI-QUANT/1.0"}
-        )
-        response.raise_for_status()
-        return response.json()
-    except Exception:
-        return None
-
+    urls = [
+        "https://apiv2.nobitex.ir",
+        "https://api.nobitex.ir"
+    ]
+    for base in urls:
+        try:
+            response = requests.get(
+                base + path,
+                params=params,
+                timeout=20,
+                headers={"User-Agent": "Mozilla/5.0"}
+            )
+            response.raise_for_status()
+            result = response.json()
+            if isinstance(result, dict):
+                return result
+        except Exception as e:
+            print(f"API error: {base} {e}")
+    return None
 
 @st.cache_data(ttl=15, show_spinner=False)
 def get_market_stats():
